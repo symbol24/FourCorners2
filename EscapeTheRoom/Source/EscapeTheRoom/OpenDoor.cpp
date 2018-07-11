@@ -22,7 +22,7 @@ void UOpenDoor::BeginPlay()
 	
 	auto* Owner = GetOwner();
 	FRotator currentRotation = Owner->GetActorRotation();
-	FRotator newRoration = currentRotation.Add(0, -45, 0);
+	FRotator newRoration = currentRotation.Add(0, -90, 0);
 	Owner->SetActorRotation(newRoration.Quaternion());
 	// ...
 	
