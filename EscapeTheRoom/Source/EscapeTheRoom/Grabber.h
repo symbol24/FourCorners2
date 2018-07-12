@@ -32,4 +32,5 @@ private:
 	FVector PlayerViewPointLocation;
 	FRotator PlayerViewPointRotation;
 	FString ToOutput;
+	FHitResult Hit;
 };
