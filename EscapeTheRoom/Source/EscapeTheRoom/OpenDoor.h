@@ -7,6 +7,8 @@
 #include "Engine/TriggerVolume.h"
 #include "OpenDoor.generated.h"
 
+DECLARE_DYNAMIC_MULTICAST_DELEGATE(FOnOpenRequest);
+DECLARE_DYNAMIC_MULTICAST_DELEGATE(FOnCloseRequest);
 
 UCLASS( ClassGroup=(Custom), meta=(BlueprintSpawnableComponent) )
 class ESCAPETHEROOM_API UOpenDoor : public UActorComponent
@@ -44,6 +46,12 @@ private:
 
 	UPROPERTY(EditAnywhere)
 		float MassForDoor = 50.f;
+
+	UPROPERTY(BlueprintAssignable)
+		FOnOpenRequest OnOpenRequest;
+
+	UPROPERTY(BlueprintAssignable)
+		FOnCloseRequest OnCloseRequest;
 
 	bool isOpen = false;
 	float LastDoorOpenTime = 0.f;

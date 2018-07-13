@@ -38,6 +38,7 @@ void UOpenDoor::OpenDoor()
 		Owner->SetActorRotation(FRotator(0, OpenAngle, 0));
 		isOpen = true;
 		LastDoorOpenTime = GetWorld()->TimeSeconds;
+		OnOpenRequest.Broadcast();
 	}
 }
 
@@ -57,9 +58,12 @@ void UOpenDoor::TickComponent(float DeltaTime, ELevelTick TickType, FActorCompon
 	Super::TickComponent(DeltaTime, TickType, ThisTickFunction);
 
 	// check to see if actor is in pressure plate to open door
-	if (GetTotalMassOnPlate() >= MassForDoor) OpenDoor();
-
-	if (isOpen && GetWorld()->TimeSeconds >= LastDoorOpenTime + DoorCloseDelay) CloseDoor();
+	if (GetTotalMassOnPlate() >= MassForDoor)
+	{
+		OnOpenRequest.Broadcast();
+		LastDoorOpenTime = GetWorld()->TimeSeconds;
+	}
+	else if (GetWorld()->TimeSeconds >= LastDoorOpenTime + DoorCloseDelay) OnCloseRequest.Broadcast();
 	
 }
 
