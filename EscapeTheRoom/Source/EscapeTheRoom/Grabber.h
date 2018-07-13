@@ -38,11 +38,12 @@ private:
 	FVector PlayerViewPointLocation;
 	FRotator PlayerViewPointRotation;
 	FString ToOutput;
-	FHitResult Hit;
+	FHitResult HitResult;
 	UPhysicsHandleComponent* PhysicsHandle = nullptr;
 	UInputComponent* InputComponent = nullptr;
 
 	void Grab();
 	void Release();
 	const FHitResult GetFirstPhysicsInReach();
+	FVector GetReachLineEnd();
 };

@@ -6,7 +6,7 @@
 #include "Components/PrimitiveComponent.h"
 #include "DrawDebugHelpers.h"
 
-#define OUT
+#define OUT // to indicate that certain pointers will be modified by a function
 
 // Sets default values for this component's properties
 UGrabber::UGrabber()
@@ -14,27 +14,25 @@ UGrabber::UGrabber()
 	// Set this component to be initialized when the game starts, and to be ticked every frame.  You can turn these features
 	// off to improve performance if you don't need them.
 	PrimaryComponentTick.bCanEverTick = true;
-
-	// ...
 }
 
 // Called when the game starts
 void UGrabber::BeginPlay()
 {
 	Super::BeginPlay();
-
 	FindPhysicsComponent();
-
 	SetupInputComponent();
 
 }
 
+// Get the Physics component on the actor.
 void UGrabber::FindPhysicsComponent()
 {
 	PhysicsHandle = GetOwner()->FindComponentByClass<UPhysicsHandleComponent>();
 	if (!PhysicsHandle) UE_LOG(LogTemp, Error, TEXT("Physics handler NOT found on %s!"), *GetOwner()->GetName())
 }
 
+// Setting up inputs for the actor.
 void UGrabber::SetupInputComponent()
 {
 	InputComponent = GetOwner()->FindComponentByClass<UInputComponent>();
@@ -50,51 +48,43 @@ void UGrabber::SetupInputComponent()
 void UGrabber::TickComponent(float DeltaTime, ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction)
 {
 	Super::TickComponent(DeltaTime, TickType, ThisTickFunction);
-
-	// if the physics handled is attached
-		// move the object held
-	if (PhysicsHandle->GrabbedComponent)
-	{
-		GetWorld()->GetFirstPlayerController()->GetPlayerViewPoint(OUT PlayerViewPointLocation, OUT PlayerViewPointRotation);
-		//setup query parameters
-
-		PhysicsHandle->SetTargetLocation(PlayerViewPointLocation + PlayerViewPointRotation.Vector() * Reach);
-	
-	}
+	// if the physics handled is attached move the object held
+	if (PhysicsHandle->GrabbedComponent) PhysicsHandle->SetTargetLocation(GetReachLineEnd());
 }
 
+// Tries to grab an object in a ray cast
 void UGrabber::Grab()
 {
 	auto ComponentToGrab = GetFirstPhysicsInReach();
-
 	if(ComponentToGrab.GetActor()) PhysicsHandle->GrabComponentAtLocation(ComponentToGrab.GetComponent(), NAME_None, ComponentToGrab.GetActor()->GetActorLocation());
 }
 
+// Releases the grabbed object
 void UGrabber::Release()
 {
 	PhysicsHandle->ReleaseComponent();
 }
 
+// Looks at the objects within a raycast at "reach" distance
 const FHitResult UGrabber::GetFirstPhysicsInReach()
 {
-	GetWorld()->GetFirstPlayerController()->GetPlayerViewPoint(OUT PlayerViewPointLocation, OUT PlayerViewPointRotation);
 	//setup query parameters
 	FCollisionQueryParams TraceParameters(FName(TEXT("")), false, GetOwner());
 	// ray cast out to reach distance or line trace
 	GetWorld()->LineTraceSingleByObjectType(
-		Hit,
+		HitResult,
 		PlayerViewPointLocation,
-		PlayerViewPointLocation + PlayerViewPointRotation.Vector() * Reach,
+		GetReachLineEnd(),
 		FCollisionObjectQueryParams(ECollisionChannel::ECC_PhysicsBody),
 		TraceParameters
 	);
-
-	if (Hit.GetActor())
-	{
-		ToOutput = "I hit:" + Hit.GetActor()->GetName();
-		UE_LOG(LogTemp, Warning, TEXT("%s"), *ToOutput);
-	}
-
-	return Hit;
+	return HitResult;
 }
 
+// Gets the vector of length reach
+FVector UGrabber::GetReachLineEnd()
+{
+	// get the player's view
+	GetWorld()->GetFirstPlayerController()->GetPlayerViewPoint(OUT PlayerViewPointLocation, OUT PlayerViewPointRotation);
+	return PlayerViewPointLocation + PlayerViewPointRotation.Vector() * Reach;
+}
