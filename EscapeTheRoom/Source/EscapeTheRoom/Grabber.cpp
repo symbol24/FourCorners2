@@ -49,7 +49,7 @@ void UGrabber::TickComponent(float DeltaTime, ELevelTick TickType, FActorCompone
 {
 	Super::TickComponent(DeltaTime, TickType, ThisTickFunction);
 	// if the physics handled is attached move the object held
-	if (PhysicsHandle->GrabbedComponent) PhysicsHandle->SetTargetLocation(GetReachLineEnd());
+	if (PhysicsHandle != nullptr && PhysicsHandle->GrabbedComponent) PhysicsHandle->SetTargetLocation(GetReachLineEnd());
 }
 
 // Tries to grab an object in a ray cast
