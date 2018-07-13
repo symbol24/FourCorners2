@@ -56,7 +56,7 @@ void UGrabber::TickComponent(float DeltaTime, ELevelTick TickType, FActorCompone
 void UGrabber::Grab()
 {
 	auto ComponentToGrab = GetFirstPhysicsInReach();
-	if(ComponentToGrab.GetActor()) PhysicsHandle->GrabComponentAtLocation(ComponentToGrab.GetComponent(), NAME_None, ComponentToGrab.GetActor()->GetActorLocation());
+	if(ComponentToGrab.GetActor()) PhysicsHandle->GrabComponentAtLocationWithRotation(ComponentToGrab.GetComponent(), NAME_None, ComponentToGrab.GetActor()->GetActorLocation(),ComponentToGrab.GetActor()->GetActorRotation());
 }
 
 // Releases the grabbed object

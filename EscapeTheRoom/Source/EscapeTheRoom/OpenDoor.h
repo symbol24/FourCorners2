@@ -46,8 +46,13 @@ private:
 	UPROPERTY(EditAnywhere)
 		float DoorCloseDelay = 1.f;
 
+	UPROPERTY(EditAnywhere)
+		float MassForDoor = 50.f;
+
 	bool isOpen;
 	float LastDoorOpenTime;
 	AActor* Owner;
 	FRotator newRotation;
+
+	float GetTotalMassOnPlate();
 };
