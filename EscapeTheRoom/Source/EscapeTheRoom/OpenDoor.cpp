@@ -27,30 +27,10 @@ void UOpenDoor::BeginPlay()
 	Owner = GetOwner();
 	if (!Owner) UE_LOG(LogTemp, Error, TEXT("No Owner found on %s!"), *GetOwner()->GetName())
 
-	// ...
-	if(!PressurePlate) UE_LOG(LogTemp, Error, TEXT("No Pressure plate assigned on %s!"), *GetOwner()->GetName())
-}
+	if (!PressurePlate) UE_LOG(LogTemp, Error, TEXT("No Pressure plate assigned on %s!"), *GetOwner()->GetName())
 
-void UOpenDoor::OpenDoor()
-{
-	if (!isOpen && Owner)
-	{
-		Owner->SetActorRotation(FRotator(0, OpenAngle, 0));
-		isOpen = true;
-		LastDoorOpenTime = GetWorld()->TimeSeconds;
-		OnOpenRequest.Broadcast();
-	}
+	if (!ExitTrigger) UE_LOG(LogTemp, Error, TEXT("No Exit assigned on %s!"), *GetOwner()->GetName())
 }
-
-void UOpenDoor::CloseDoor()
-{
-	if (isOpen && Owner)
-	{
-		Owner->SetActorRotation(FRotator(0, ClosedAngle, 0));
-		isOpen = false;
-	}
-}
-
 
 // Called every frame
 void UOpenDoor::TickComponent(float DeltaTime, ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction)
@@ -63,8 +43,9 @@ void UOpenDoor::TickComponent(float DeltaTime, ELevelTick TickType, FActorCompon
 		OnOpenRequest.Broadcast();
 		LastDoorOpenTime = GetWorld()->TimeSeconds;
 	}
-	else if (GetWorld()->TimeSeconds >= LastDoorOpenTime + DoorCloseDelay) OnCloseRequest.Broadcast();
-	
+	else OnCloseRequest.Broadcast();
+
+	EndGame();
 }
 
 float UOpenDoor::GetTotalMassOnPlate()
@@ -84,4 +65,14 @@ float UOpenDoor::GetTotalMassOnPlate()
 		}
 	}
 	return TotalMass;
+}
+
+void UOpenDoor::EndGame()
+{
+	if (ExitTrigger)
+	{
+		TArray<AActor*> OverlappingActors;
+		ExitTrigger->GetOverlappingActors(OUT OverlappingActors);
+		if (OverlappingActors.Num() >= 1) QuitTheGame.Broadcast();
+	}
 }

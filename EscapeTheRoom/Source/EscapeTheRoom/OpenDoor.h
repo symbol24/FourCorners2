@@ -7,8 +7,7 @@
 #include "Engine/TriggerVolume.h"
 #include "OpenDoor.generated.h"
 
-DECLARE_DYNAMIC_MULTICAST_DELEGATE(FOnOpenRequest);
-DECLARE_DYNAMIC_MULTICAST_DELEGATE(FOnCloseRequest);
+DECLARE_DYNAMIC_MULTICAST_DELEGATE(FDoorEvent);
 
 UCLASS( ClassGroup=(Custom), meta=(BlueprintSpawnableComponent) )
 class ESCAPETHEROOM_API UOpenDoor : public UActorComponent
@@ -32,26 +31,25 @@ public:
 	virtual void TickComponent(float DeltaTime, ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction) override;
 
 private:
-	UPROPERTY(VisibleAnywhere)
-		int32 OpenAngle = -90;
-
-	UPROPERTY(VisibleAnywhere)
-		int32 ClosedAngle = 0;
-
 	UPROPERTY(EditAnywhere)
 		ATriggerVolume* PressurePlate = nullptr;
-	
+
 	UPROPERTY(EditAnywhere)
-		float DoorCloseDelay = 1.f;
+		ATriggerVolume* ExitTrigger = nullptr;
+
+	AActor* ThePlayer = nullptr;
 
 	UPROPERTY(EditAnywhere)
 		float MassForDoor = 50.f;
 
 	UPROPERTY(BlueprintAssignable)
-		FOnOpenRequest OnOpenRequest;
+		FDoorEvent OnOpenRequest;
 
 	UPROPERTY(BlueprintAssignable)
-		FOnCloseRequest OnCloseRequest;
+		FDoorEvent OnCloseRequest;
+
+	UPROPERTY(BlueprintAssignable)
+		FDoorEvent QuitTheGame;
 
 	bool isOpen = false;
 	float LastDoorOpenTime = 0.f;
@@ -59,4 +57,6 @@ private:
 	FRotator newRotation;
 
 	float GetTotalMassOnPlate();
+
+	void EndGame();
 };
